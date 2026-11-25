@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Числовые домики — Краинская Ирина Александровна</title>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(180deg, #e8f6f8 0%, #d9eff5 100%);
+      --primary-blue: #0b69b8;
+      --slot-border: #3b9ae1;
+      --house-yellow: #ffe26a;
+      --house-border: #f3b63a;
+      --roof-red: #e54d42;
+      --text-dark: #1e293b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-dark);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Верхняя панель управления */
+    header {
+      background: #ffffff;
+      padding: clamp(6px, 1.2dvh, 12px) 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(4px, 0.8dvh, 8px);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .header-top {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    h1 {
+      font-size: clamp(16px, 2.4dvh, 22px);
+      color: #0d5c9e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 800;
+    }
+
+    .sound-btn {
+      background: #fef3c7;
+      border: 1.5px solid #f59e0b;
+      color: #78350f;
+      font-weight: 700;
+      font-size: clamp(12px, 1.6dvh, 14px);
+      padding: 4px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.1s;
+    }
+
+    .sound-btn:active {
+      transform: scale(0.96);
+    }
+
+    .levels {
+      display: flex;
+      justify-content: center;
+      gap: clamp(4px, 1.2vw, 8px);
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .lvl-btn {
+      flex: 1;
+      max-width: 44px;
+      height: clamp(28px, 3.8dvh, 36px);
+      border-radius: 9px;
+      border: 1.5px solid #bae6fd;
+      background: #f0f9ff;
+      color: #0369a1;
+      font-weight: 700;
+      font-size: clamp(14px, 2dvh, 17px);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .lvl-btn.active {
+      background: var(--primary-blue);
+      border-color: var(--primary-blue);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(11, 105, 184, 0.35);
+    }
+
+    /* Центральная область с домиком */
+    main {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(4px, 1dvh, 10px) 12px;
+      position: relative;
+    }
+
+    .house-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 290px;
+      height: 100%;
+      max-height: 100%;
+      justify-content: center;
+    }
+
+    .roof {
+      width: 106%;
+      height: clamp(42px, 7.5dvh, 68px);
+      background: var(--roof-red);
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: clamp(4px, 0.9dvh, 10px);
+      flex-shrink: 0;
+      filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.12));
+    }
+
+    .roof-number {
+      color: #ffffff;
+      font-size: clamp(20px, 3.4dvh, 30px);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .house-body {
+      width: 92%;
+      background: var(--house-yellow);
+      border: 3px solid var(--house-border);
+      border-top: none;
+      border-radius: 0 0 16px 16px;
+      padding: clamp(5px, 1dvh, 10px) clamp(8px, 2vw, 12px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      gap: clamp(3px, 0.65dvh, 7px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      flex: 1;
+      min-height: 0;
+      max-height: 430px;
+    }
+
+    .floor {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(6px, 2vw, 12px);
+      flex: 1;
+      min-height: 0;
+      max-height: 44px;
+    }
+
+    .window-left, .window-right {
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: clamp(15px, 2.3dvh, 21px);
+      height: 100%;
+      min-height: 22px;
+    }
+
+    .window-left {
+      background: #ffffff;
+      border: 2px solid var(--slot-border);
+      color: #0f172a;
+      box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .window-right {
+      background: #e8f5ff;
+      border: 2px dashed var(--slot-border);
+      color: #0b69b8;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .window-right.highlight {
+      background: #bae6fd;
+      border-style: solid;
+      transform: scale(1.03);
+    }
+
+    .window-right.filled {
+      background: #dcfce7;
+      border: 2px solid #22c55e;
+      color: #15803d;
+      cursor: default;
+    }
+
+    .window-right.wrong {
+      background: #fee2e2;
+      border-color: #ef4444;
+      animation: shake 0.3s;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    /* Нижняя панель с карточками и подписью автора */
+    footer {
+      background: #ffffff;
+      border-radius: 18px 18px 0 0;
+      padding: clamp(6px, 1dvh, 10px) 10px clamp(5px, 0.9dvh, 8px);
+      box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.07);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(4px, 0.7dvh, 7px);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .hint-text {
+      font-size: clamp(12px, 1.7dvh, 15px);
+      font-weight: 700;
+      color: #334155;
+      text-align: center;
+    }
+
+    .cards-pool {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: clamp(5px, 1.4vw, 8px);
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .num-card {
+      width: clamp(42px, 11vw, 54px);
+      height: clamp(36px, 5.2dvh, 46px);
+      border-radius: 11px;
+      color: #ffffff;
+      font-size: clamp(17px, 2.5dvh, 22px);
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+      transition: transform 0.12s, opacity 0.15s;
+      touch-action: none;
+    }
+
+    .num-card.selected {
+      outline: 3px solid #0f172a;
+      transform: translateY(-3px) scale(1.06);
+    }
+
+    .num-card.used {
+      opacity: 0.22;
+      pointer-events: none;
+      transform: scale(0.92);
+    }
+
+    .c-0 { background: #e5484d; }
+    .c-1 { background: #3b7ddd; }
+    .c-2 { background: #10b981; }
+    .c-3 { background: #f59e0b; }
+    .c-4 { background: #8b5cf6; }
+    .c-5 { background: #ec4899; }
+    .c-6 { background: #06b6d4; }
+    .c-7 { background: #f97316; }
+    .c-8 { background: #6366f1; }
+
+    .author-credit {
+      font-size: clamp(10px, 1.35dvh, 12px);
+      color: #64748b;
+      text-align: center;
+      line-height: 1.25;
+      margin-top: 1px;
+    }
+
+    /* Плавающая карточка при перетаскивании пальцем */
+    .drag-ghost {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%) scale(1.12);
+      opacity: 0.95;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Модальное окно победы */
+    .win-banner {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.92);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      z-index: 20;
+      text-align: center;
+      padding: 16px;
+    }
+
+    .win-banner.show {
+      display: flex;
+    }
+
+    .win-banner h2 {
+      font-size: clamp(22px, 3.5dvh, 28px);
+      color: #15803d;
+    }
+
+    .win-banner p {
+      font-size: clamp(14px, 2dvh, 17px);
+      color: #334155;
+    }
+
+    .next-btn {
+      background: #22c55e;
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 22px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #15803d;
+    }
+
+    .next-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #15803d;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <h1>🏠 Числовые домики</h1>
+      <button class="sound-btn" id="soundToggle" type="button">🔊 Звук ВКЛ</button>
+    </div>
+    <div class="levels" id="levelsBar"></div>
+  </header>
+
+  <main>
+    <div class="house-wrapper">
+      <div class="roof">
+        <span class="roof-number" id="roofNumber">8</span>
+      </div>
+      <div class="house-body" id="houseBody"></div>
+    </div>
+
+    <div class="win-banner" id="winBanner">
+      <h2>🎉 Молодец!</h2>
+      <p id="winText">Домик для числа 8 заселён правильно!</p>
+      <button class="next-btn" id="nextBtn" type="button">Играть дальше ➔</button>
+    </div>
+  </main>
+
+  <footer>
+    <div class="hint-text">Перетащи или нажми на цифру для пустого окошка</div>
+    <div class="cards-pool" id="cardsPool"></div>
+    <div class="author-credit">Автор: Краинская Ирина Александровна, педагог дополнительного образования</div>
+  </footer>
+
+  <script>
+    const LEVELS = [4, 5, 6, 7, 8, 9, 10];
+    let currentTarget = 8;
+    let soundEnabled = true;
+    let selectedCard = null;
+    let solvedCount = 0;
+    let audioCtx = null;
+
+    const levelsBar = document.getElementById('levelsBar');
+    const roofNumber = document.getElementById('roofNumber');
+    const houseBody = document.getElementById('houseBody');
+    const cardsPool = document.getElementById('cardsPool');
+    const soundToggle = document.getElementById('soundToggle');
+    const winBanner = document.getElementById('winBanner');
+    const winText = document.getElementById('winText');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function playTone(type) {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+
+        if (type === 'ok') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.08);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'err') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.setValueAtTime(180, now + 0.1);
+          gain.gain.setValueAtTime(0.18, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'win') {
+          osc.type = 'sine';
+          [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+            osc.frequency.setValueAtTime(freq, now + i * 0.1);
+          });
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+          osc.start(now);
+          osc.stop(now + 0.55);
+        }
+      } catch (e) {}
+    }
+
+    soundToggle.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      soundToggle.textContent = soundEnabled ? '🔊 Звук ВКЛ' : '🔇 Звук ВЫКЛ';
+    });
+
+    function initLevels() {
+      levelsBar.innerHTML = '';
+      LEVELS.forEach(num => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'lvl-btn' + (num === currentTarget ? ' active' : '');
+        btn.textContent = num;
+        btn.addEventListener('click', () => startLevel(num));
+        levelsBar.appendChild(btn);
+      });
+    }
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function startLevel(target) {
+      currentTarget = target;
+      selectedCard = null;
+      solvedCount = 0;
+      winBanner.classList.remove('show');
+      roofNumber.textContent = target;
+
+      document.querySelectorAll('.lvl-btn').forEach(b => {
+        b.classList.toggle('active', Number(b.textContent) === target);
+      });
+
+      houseBody.innerHTML = '';
+      const neededNumbers = [];
+
+      for (let leftNum = 1; leftNum < target; leftNum++) {
+        const rightExpected = target - leftNum;
+        neededNumbers.push(rightExpected);
+
+        const floor = document.createElement('div');
+        floor.className = 'floor';
+
+        const leftWin = document.createElement('div');
+        leftWin.className = 'window-left';
+        leftWin.textContent = leftNum;
+
+        const rightWin = document.createElement('div');
+        rightWin.className = 'window-right';
+        rightWin.dataset.expected = rightExpected;
+
+        rightWin.addEventListener('click', () => {
+          if (selectedCard && !rightWin.classList.contains('filled')) {
+            tryPlace(selectedCard, rightWin);
+          }
+        });
+
+        floor.appendChild(leftWin);
+        floor.appendChild(rightWin);
+        houseBody.appendChild(floor);
+      }
+
+      cardsPool.innerHTML = '';
+      const shuffled = shuffle(neededNumbers);
+
+      shuffled.forEach((val, idx) => {
+        const card = document.createElement('div');
+        card.className = `num-card c-${idx % 9}`;
+        card.textContent = val;
+        card.dataset.value = val;
+
+        card.addEventListener('click', () => {
+          if (card.classList.contains('used')) return;
+          if (selectedCard === card) {
+            card.classList.remove('selected');
+            selectedCard = null;
+          } else {
+            document.querySelectorAll('.num-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedCard = card;
+          }
+        });
+
+        setupPointerDrag(card);
+        cardsPool.appendChild(card);
+      });
+    }
+
+    function tryPlace(card, slot) {
+      if (!slot || slot.classList.contains('filled')) return;
+      const val = Number(card.dataset.value);
+      const expected = Number(slot.dataset.expected);
+
+      if (val === expected) {
+        slot.textContent = val;
+        slot.classList.add('filled');
+        card.classList.remove('selected');
+        card.classList.add('used');
+        selectedCard = null;
+        solvedCount++;
+        playTone('ok');
+
+        if (solvedCount === currentTarget - 1) {
+          setTimeout(() => {
+            playTone('win');
+            winText.textContent = `Домик для числа ${currentTarget} заселён правильно!`;
+            winBanner.classList.add('show');
+          }, 300);
+        }
+      } else {
+        slot.classList.add('wrong');
+        playTone('err');
+        setTimeout(() => slot.classList.remove('wrong'), 350);
+      }
+    }
+
+    function setupPointerDrag(card) {
+      let ghost = null;
+      let startX = 0;
+      let startY = 0;
+      let moved = false;
+
+      card.addEventListener('pointerdown', (e) => {
+        if (card.classList.contains('used')) return;
+        startX = e.clientX;
+        startY = e.clientY;
+        moved = false;
+        card.setPointerCapture(e.pointerId);
+
+        const onMove = (ev) => {
+          const dx = ev.clientX - startX;
+          const dy = ev.clientY - startY;
+          if (!moved && Math.hypot(dx, dy) > 8) {
+            moved = true;
+            ghost = card.cloneNode(true);
+            ghost.classList.remove('selected');
+            ghost.classList.add('drag-ghost');
+            ghost.style.width = card.offsetWidth + 'px';
+            ghost.style.height = card.offsetHeight + 'px';
+            document.body.appendChild(ghost);
+          }
+
+          if (ghost) {
+            ghost.style.left = ev.clientX + 'px';
+            ghost.style.top = ev.clientY + 'px';
+
+            document.querySelectorAll('.window-right').forEach(w => w.classList.remove('highlight'));
+            const elemUnder = document.elementFromPoint(ev.clientX, ev.clientY);
+            const targetSlot = elemUnder ? elemUnder.closest('.window-right') : null;
+            if (targetSlot && !targetSlot.classList.contains('filled')) {
+              targetSlot.classList.add('highlight');
+            }
+          }
+        };
+
+        const onUp = (ev) => {
+          card.removeEventListener('pointermove', onMove);
+          card.removeEventListener('pointerup', onUp);
+          card.removeEventListener('pointercancel', onUp);
+
+          document.querySelectorAll('.window-right').forEach(w => w.classList.remove('highlight'));
+
+          if (ghost) {
+            ghost.remove();
+            ghost = null;
+            const elemUnder = document.elementFromPoint(ev.clientX, ev.clientY);
+            const targetSlot = elemUnder ? elemUnder.closest('.window-right') : null;
+            if (targetSlot) {
+              tryPlace(card, targetSlot);
+            }
+          }
+        };
+
+        card.addEventListener('pointermove', onMove);
+        card.addEventListener('pointerup', onUp);
+        card.addEventListener('pointercancel', onUp);
+      });
+    }
+
+    nextBtn.addEventListener('click', () => {
+      const idx = LEVELS.indexOf(currentTarget);
+      const nextTarget = LEVELS[(idx + 1) % LEVELS.length];
+      startLevel(nextTarget);
+    });
+
+    initLevels();
+    startLevel(8);
+  </script>
+</body>
+</html>
